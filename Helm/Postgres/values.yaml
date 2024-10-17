@@ -1,0 +1,6 @@
+pgBouncer:
+  enabled: true
+  replicaCount: 1
+  image: edoburu/pgbouncer
+  postgresUser: admin
+  postgresPassword: {{ .Values.postgresPassword }}
