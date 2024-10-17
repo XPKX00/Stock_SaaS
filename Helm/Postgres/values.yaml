@@ -3,4 +3,4 @@ pgBouncer:
   replicaCount: 1
   image: edoburu/pgbouncer
   postgresUser: admin
-  postgresPassword: password123
+  postgresPassword: password1234
