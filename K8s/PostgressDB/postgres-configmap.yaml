@@ -1,1 +1,9 @@
-test.com
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: database
+data:
+  POSTGRES_DB: multi_tenant_db
+  POSTGRES_USER: admin
+  
