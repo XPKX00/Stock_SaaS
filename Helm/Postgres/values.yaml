@@ -1,6 +1,13 @@
-pgBouncer:
-  enabled: true
-  replicaCount: 1
-  image: edoburu/pgbouncer
-  postgresUser: admin
-  postgresPassword: password12345
+replicaCount: 1
+
+postgres:
+  image: "postgres:13"
+  database: "mydatabase"
+  username: "admin"
+  secret: "postgres-secret" 
+
+service:
+  type: ClusterIP
+
+image:
+  pullPolicy: IfNotPresent
