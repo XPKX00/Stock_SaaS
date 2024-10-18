@@ -1,21 +1,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: postgres-app
+  name: database1
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://github.com/XPKX00/Stock_SaaS
+    repoURL: 'https://github.com/XPKX00/Stock_SaaS'
     targetRevision: HEAD
     path: Helm/Postgres
   destination:
-    server: https://kubernetes.default.svc
+    server: 'https://kubernetes.default.svc'
     namespace: database
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      CreateNamespace=true
-    
