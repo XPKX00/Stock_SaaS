@@ -36,6 +36,13 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: db-password
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
         volumeMounts:
         - name: postgres-persistent-storage
           mountPath: /var/lib/postgresql/data
