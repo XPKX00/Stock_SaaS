@@ -1,13 +1,12 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: postgres-pvc
-  namespace: database
+  name: {{ .Release.Name }}-postgres-pvc
+  namespace: {{ .Values.namespace.name }}
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 100Gi
-  storageClassName: fast-ssd
-  
+      storage: {{ .Values.postgres.storage }}
+  storageClassName: {{ .Values.postgres.storageClass }}

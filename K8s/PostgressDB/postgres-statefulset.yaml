@@ -1,35 +1,42 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: postgres
+  name: {{ .Release.Name }}-postgres
   namespace: database
 spec:
-  serviceName: "postgres-service"
-  replicas: 1
+  serviceName: "{{ .Release.Name }}-postgres"
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: postgres
+      app: {{ .Release.Name }}-postgres
   template:
     metadata:
       labels:
-        app: postgres
+        app: {{ .Release.Name }}-postgres
     spec:
       containers:
       - name: postgres
-        image: postgres:13
+        image: {{ .Values.postgres.image }}
         ports:
         - containerPort: 5432
           name: postgres
-        envFrom:
-        - configMapRef:
-            name: postgres-config
         env:
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: postgres-secret
               key: db-password
-              volumeMounts:
+        volumeMounts:
         - name: postgres-persistent-storage
           mountPath: /var/lib/postgresql/data
   volumeClaimTemplates:
