@@ -14,6 +14,15 @@ spec:
       labels:
         app: {{ .Release.Name }}-postgres
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - node2  # Ensure that node2 is the target node you want to use
       containers:
       - name: postgres
         image: {{ .Values.postgres.image }}
