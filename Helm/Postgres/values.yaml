@@ -5,7 +5,7 @@ postgres:
   username: "admin"
   password: "password123" 
   storageClass: fast-ssd
-  storage: 100Gi
+  storage: 5Gi
 
 service:
   type: ClusterIP
