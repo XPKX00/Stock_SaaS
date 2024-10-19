@@ -4,6 +4,8 @@ postgres:
   database: "mydatabase"
   username: "admin"
   password: "password123" 
+  storageClass: fast-ssd
+  storage: 100Gi
 
 service:
   type: ClusterIP
