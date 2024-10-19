@@ -26,4 +26,4 @@ spec:
             - name: POSTGRES_USER
               value: {{ .Values.postgres.username }}
             - name: POSTGRES_PASSWORD
-               value: {{ .Values.postgres.password }}
+              value: {{ .Values.postgres.password }}
