@@ -23,6 +23,32 @@ spec:
                 operator: In
                 values:
                 - node2  # Ensure that node2 is the target node you want to use
+      initContainers:
+      - name: init-database
+        image: postgres:13
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: db-password
+        volumeMounts:
+        - name: postgres-persistent-storage
+          mountPath: /var/lib/postgresql/data
+        command:
+          - "sh"
+          - "-c"
+          - |
+            if [ ! -f /var/lib/postgresql/data/db_initialized ]; then
+              echo "$CREATE_USER_SUBSCRIPTION_DB_SQL" | psql -U $POSTGRES_USER && \
+              echo "$CREATE_STOCK_DATA_DB_SQL" | psql -U $POSTGRES_USER && \
+              touch /var/lib/postgresql/data/db_initialized
+            fi
       containers:
       - name: postgres
         image: {{ .Values.postgres.image }}
@@ -45,12 +71,6 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: db-password
-        - name: CREATE_USER_SUBSCRIPTION_DB_SQL
-          value: |
-            {{ .Files.Get "files/create_user_subscription_db.sql" | nindent 12 }}
-        - name: CREATE_STOCK_DATA_DB_SQL
-          value: |
-            {{ .Files.Get "files/create_stock_data_db.sql" | nindent 12 }}
         resources:
           requests:
             cpu: "100m"
@@ -61,18 +81,6 @@ spec:
         volumeMounts:
         - name: postgres-persistent-storage
           mountPath: /var/lib/postgresql/data
-        lifecycle:
-          postStart:
-            exec:
-              command:
-                - "sh"
-                - "-c"
-                - |
-                  if [ ! -f /var/lib/postgresql/data/db_initialized ]; then
-                    echo "$CREATE_USER_SUBSCRIPTION_DB_SQL" | psql -U $POSTGRES_USER && \
-                    echo "$CREATE_STOCK_DATA_DB_SQL" | psql -U $POSTGRES_USER && \
-                    touch /var/lib/postgresql/data/db_initialized
-                  fi
   volumeClaimTemplates:
   - metadata:
       name: postgres-persistent-storage
