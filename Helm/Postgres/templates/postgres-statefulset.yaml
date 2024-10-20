@@ -46,12 +46,18 @@ spec:
           - |
             echo "Starting database initialization"
             if [ ! -f /var/lib/postgresql/data/db_initialized ]; then
-              echo "Running SQL script for user subscription DB"
-              echo "$CREATE_USER_SUBSCRIPTION_DB_SQL" | psql -U "$POSTGRES_USER" && \
-              echo "Running SQL script for stock data DB"
-              echo "$CREATE_STOCK_DATA_DB_SQL" | psql -U "$POSTGRES_USER" && \
+              echo "Waiting for PostgreSQL to be ready..."
+              until pg_isready -h {{ .Release.Name }}-postgres -p 5432 -U "$POSTGRES_USER"; do
+                >&2 echo "PostgreSQL is unavailable - sleeping"
+                sleep 2
+              done
+
+              echo "PostgreSQL is ready. Running SQL script for user subscription DB."
+              echo "$CREATE_USER_SUBSCRIPTION_DB_SQL" | psql -h {{ .Release.Name }}-postgres -p 5432 -U "$POSTGRES_USER" && \
+              echo "Running SQL script for stock data DB."
+              echo "$CREATE_STOCK_DATA_DB_SQL" | psql -h {{ .Release.Name }}-postgres -p 5432 -U "$POSTGRES_USER" && \
               touch /var/lib/postgresql/data/db_initialized && \
-              echo "Database initialization complete"
+              echo "Database initialization complete."
             else
               echo "Database already initialized, skipping."
             fi
