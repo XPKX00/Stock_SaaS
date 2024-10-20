@@ -6,4 +6,4 @@ metadata:
 data:
   POSTGRES_DB: multi_tenant_db
   POSTGRES_USER: admin
-  
+  POSTGRES_PASSWORD: adminpassword

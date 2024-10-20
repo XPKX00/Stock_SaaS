@@ -55,6 +55,18 @@ spec:
         volumeMounts:
         - name: postgres-persistent-storage
           mountPath: /var/lib/postgresql/data
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - "sh"
+                - "-c"
+                - |
+                  if [ ! -f /var/lib/postgresql/data/db_initialized ]; then
+                    psql -U $POSTGRES_USER -f /docker-entrypoint-initdb.d/initdb/create_user_subscription_db.sql && \
+                    psql -U $POSTGRES_USER -f /docker-entrypoint-initdb.d/initdb/create_stock_data_db.sql && \
+                    touch /var/lib/postgresql/data/db_initialized
+                  fi
   volumeClaimTemplates:
   - metadata:
       name: postgres-persistent-storage

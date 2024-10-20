@@ -1,9 +1,6 @@
 replicaCount: 1
 postgres:
   image: "postgres:13"
-  database: "mydatabase"
-  username: "admin"
-  password: "password123" 
   storageClass: fast-ssd
   storage: 5Gi
 
@@ -12,3 +9,28 @@ service:
 
 image:
   pullPolicy: IfNotPresent
+global:
+  postgresql:
+    auth:
+      username: admin
+      password: adminpassword
+      database: multi_tenant_db
+      replicationUser: repl_user
+      replicationPassword: repl_password
+      databases:
+        - name: user_subscription_db
+          user: user_subscription_user
+          password: subscription_password
+        - name: stock_data_db
+          user: stock_data_user
+          password: stock_password
+primary:
+  initdb:
+    initdbScripts:
+      create_user_subscription_db: "$(< initdb/create_user_subscription_db.sql)"
+      create_stock_data_db: "$(< initdb/create_stock_data_db.sql)"
+
+env:
+  POSTGRES_DB: "multi_tenant_db"
+  POSTGRES_USER: "admin"
+  POSTGRES_PASSWORD: "adminpassword"
