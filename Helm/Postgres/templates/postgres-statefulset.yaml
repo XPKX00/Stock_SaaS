@@ -45,11 +45,12 @@ spec:
           - "-c"
           - |
             echo "Starting database initialization"
+            sleep 20  # Initial delay to allow the PostgreSQL service to fully start
             if [ ! -f /var/lib/postgresql/data/db_initialized ]; then
               echo "Waiting for PostgreSQL to be ready..."
               until pg_isready -h {{ .Release.Name }}-postgres -p 5432 -U "$POSTGRES_USER"; do
                 >&2 echo "PostgreSQL is unavailable - sleeping"
-                sleep 2
+                sleep 5  # Retry every 5 seconds
               done
 
               echo "PostgreSQL is ready. Running SQL script for user subscription DB."
@@ -83,6 +84,18 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: db-password
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - postgres
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 10
         resources:
           requests:
             cpu: "100m"
