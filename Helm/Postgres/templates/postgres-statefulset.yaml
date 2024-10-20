@@ -45,6 +45,12 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: db-password
+        - name: CREATE_USER_SUBSCRIPTION_DB_SQL
+          value: |
+            {{ .Files.Get "files/create_user_subscription_db.sql" | nindent 12 }}
+        - name: CREATE_STOCK_DATA_DB_SQL
+          value: |
+            {{ .Files.Get "files/create_stock_data_db.sql" | nindent 12 }}
         resources:
           requests:
             cpu: "100m"
@@ -63,8 +69,8 @@ spec:
                 - "-c"
                 - |
                   if [ ! -f /var/lib/postgresql/data/db_initialized ]; then
-                    psql -U $POSTGRES_USER -f /docker-entrypoint-initdb.d/initdb/create_user_subscription_db.sql && \
-                    psql -U $POSTGRES_USER -f /docker-entrypoint-initdb.d/initdb/create_stock_data_db.sql && \
+                    echo "$CREATE_USER_SUBSCRIPTION_DB_SQL" | psql -U $POSTGRES_USER && \
+                    echo "$CREATE_STOCK_DATA_DB_SQL" | psql -U $POSTGRES_USER && \
                     touch /var/lib/postgresql/data/db_initialized
                   fi
   volumeClaimTemplates:

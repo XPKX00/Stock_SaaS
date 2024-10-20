@@ -27,8 +27,8 @@ global:
 primary:
   initdb:
     initdbScripts:
-      create_user_subscription_db: "$(< initdb/create_user_subscription_db.sql)"
-      create_stock_data_db: "$(< initdb/create_stock_data_db.sql)"
+      create_user_subscription_db: "$(< files/create_user_subscription_db.sql)"
+      create_stock_data_db: "$(< files/create_stock_data_db.sql)"
 
 env:
   POSTGRES_DB: "multi_tenant_db"
