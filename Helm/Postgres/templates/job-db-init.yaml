@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres-db-initializer
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "0"
+  labels:
+    app: {{ .Release.Name }}-db-init
+spec:
+  template:
+    spec:
+      containers:
+      - name: init-database
+        image: postgres:13
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: db-password
+        - name: CREATE_USER_SUBSCRIPTION_DB_SQL
+          value: |
+            {{ .Files.Get "initdb/create_user_subscription_db.sql" | nindent 12 }}
+        - name: CREATE_STOCK_DATA_DB_SQL
+          value: |
+            {{ .Files.Get "initdb/create_stock_data_db.sql" | nindent 12 }}
+        command:
+          - "sh"
+          - "-c"
+          - |
+            echo "Starting database initialization"
+            until pg_isready -h {{ .Release.Name }}-postgres -p 5432 -U "$POSTGRES_USER"; do
+              >&2 echo "PostgreSQL is unavailable - sleeping"
+              sleep 5
+            done
+
+            echo "PostgreSQL is ready. Creating user subscription database..."
+            echo "$CREATE_USER_SUBSCRIPTION_DB_SQL" | psql -h {{ .Release.Name }}-postgres -p 5432 -U "$POSTGRES_USER" && \
+            echo "Creating stock data database..."
+            echo "$CREATE_STOCK_DATA_DB_SQL" | psql -h {{ .Release.Name }}-postgres -p 5432 -U "$POSTGRES_USER" && \
+            echo "Database initialization complete."
+      restartPolicy: OnFailure
+  backoffLimit: 4

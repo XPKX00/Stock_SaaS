@@ -23,45 +23,6 @@ spec:
                 operator: In
                 values:
                 - node2  # Ensure that node2 is the target node you want to use
-      initContainers:
-      - name: init-database
-        image: postgres:13
-        env:
-        - name: POSTGRES_USER
-          valueFrom:
-            configMapKeyRef:
-              name: postgres-config
-              key: POSTGRES_USER
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: db-password
-        volumeMounts:
-        - name: postgres-persistent-storage
-          mountPath: /var/lib/postgresql/data
-        command:
-          - "sh"
-          - "-c"
-          - |
-            echo "Starting database initialization"
-            sleep 20  # Initial delay to allow the PostgreSQL service to fully start
-            if [ ! -f /var/lib/postgresql/data/db_initialized ]; then
-              echo "Waiting for PostgreSQL to be ready..."
-              until pg_isready -h {{ .Release.Name }}-postgres -p 5432 -U "$POSTGRES_USER"; do
-                >&2 echo "PostgreSQL is unavailable - sleeping"
-                sleep 5  # Retry every 5 seconds
-              done
-
-              echo "PostgreSQL is ready. Running SQL script for user subscription DB."
-              echo "$CREATE_USER_SUBSCRIPTION_DB_SQL" | psql -h {{ .Release.Name }}-postgres -p 5432 -U "$POSTGRES_USER" && \
-              echo "Running SQL script for stock data DB."
-              echo "$CREATE_STOCK_DATA_DB_SQL" | psql -h {{ .Release.Name }}-postgres -p 5432 -U "$POSTGRES_USER" && \
-              touch /var/lib/postgresql/data/db_initialized && \
-              echo "Database initialization complete."
-            else
-              echo "Database already initialized, skipping."
-            fi
       containers:
       - name: postgres
         image: {{ .Values.postgres.image }}
@@ -92,7 +53,7 @@ spec:
             - localhost
             - -U
             - postgres
-          initialDelaySeconds: 60
+          initialDelaySeconds: 20
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 12
