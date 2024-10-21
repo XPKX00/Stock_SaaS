@@ -26,17 +26,17 @@ spec:
               name: postgres-secret
               key: db-password
         - name: USER_SUBSCRIPTION_DB
-          value: "{{ .Values.global.postgresql.auth.databases[0].name }}"
+          value: "{{ .Values.global.postgresql.auth.databases.0.name }}"
         - name: USER_SUBSCRIPTION_DB_USER
-          value: "{{ .Values.global.postgresql.auth.databases[0].user }}"
+          value: "{{ .Values.global.postgresql.auth.databases.0.user }}"
         - name: USER_SUBSCRIPTION_DB_PASSWORD
-          value: "{{ .Values.global.postgresql.auth.databases[0].password }}"
+          value: "{{ .Values.global.postgresql.auth.databases.0.password }}"
         - name: STOCK_DATA_DB
-          value: "{{ .Values.global.postgresql.auth.databases[1].name }}"
+          value: "{{ .Values.global.postgresql.auth.databases.1.name }}"
         - name: STOCK_DATA_DB_USER
-          value: "{{ .Values.global.postgresql.auth.databases[1].user }}"
+          value: "{{ .Values.global.postgresql.auth.databases.1.user }}"
         - name: STOCK_DATA_DB_PASSWORD
-          value: "{{ .Values.global.postgresql.auth.databases[1].password }}"
+          value: "{{ .Values.global.postgresql.auth.databases.1.password }}"
         command:
           - "sh"
           - "-c"
@@ -52,25 +52,25 @@ spec:
 
             # Check if the databases exist, create if they don't
             psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_database WHERE datname = '$USER_SUBSCRIPTION_DB'" | grep -q 1 || \
-              psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "CREATE DATABASE $USER_SUBSCRIPTION_DB"
+              psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "CREATE DATABASE \"$USER_SUBSCRIPTION_DB\""
 
             psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_database WHERE datname = '$STOCK_DATA_DB'" | grep -q 1 || \
-              psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "CREATE DATABASE $STOCK_DATA_DB"
+              psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "CREATE DATABASE \"$STOCK_DATA_DB\""
 
             # Create users for each database if not already present
-            psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$USER_SUBSCRIPTION_DB_USER') THEN CREATE ROLE $USER_SUBSCRIPTION_DB_USER WITH LOGIN PASSWORD '$USER_SUBSCRIPTION_DB_PASSWORD'; END IF; END \$\$;"
-            psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$STOCK_DATA_DB_USER') THEN CREATE ROLE $STOCK_DATA_DB_USER WITH LOGIN PASSWORD '$STOCK_DATA_DB_PASSWORD'; END IF; END \$\$;"
+            psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$USER_SUBSCRIPTION_DB_USER') THEN CREATE ROLE \"$USER_SUBSCRIPTION_DB_USER\" WITH LOGIN PASSWORD '$USER_SUBSCRIPTION_DB_PASSWORD'; END IF; END \$\$;"
+            psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$STOCK_DATA_DB_USER') THEN CREATE ROLE \"$STOCK_DATA_DB_USER\" WITH LOGIN PASSWORD '$STOCK_DATA_DB_PASSWORD'; END IF; END \$\$;"
 
             # Grant privileges to the new users
-            psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "GRANT ALL PRIVILEGES ON DATABASE $USER_SUBSCRIPTION_DB TO $USER_SUBSCRIPTION_DB_USER;"
-            psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "GRANT ALL PRIVILEGES ON DATABASE $STOCK_DATA_DB TO $STOCK_DATA_DB_USER;"
+            psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "GRANT ALL PRIVILEGES ON DATABASE \"$USER_SUBSCRIPTION_DB\" TO \"$USER_SUBSCRIPTION_DB_USER\";"
+            psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "GRANT ALL PRIVILEGES ON DATABASE \"$STOCK_DATA_DB\" TO \"$STOCK_DATA_DB_USER\";"
 
             # Create tables in the user subscription database
-            echo "\c $USER_SUBSCRIPTION_DB;" | psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" && \
+            echo "\c \"$USER_SUBSCRIPTION_DB\";" | psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" && \
             echo "$CREATE_USER_SUBSCRIPTION_DB_SQL" | psql -h {{ .Release.Name }}-postgres -U "$USER_SUBSCRIPTION_DB_USER"
 
             # Create tables in the stock data database
-            echo "\c $STOCK_DATA_DB;" | psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" && \
+            echo "\c \"$STOCK_DATA_DB\";" | psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" && \
             echo "$CREATE_STOCK_DATA_DB_SQL" | psql -h {{ .Release.Name }}-postgres -U "$STOCK_DATA_DB_USER"
 
             echo "Database and user initialization complete."
