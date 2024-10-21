@@ -26,17 +26,17 @@ spec:
               name: postgres-secret
               key: db-password
         - name: USER_SUBSCRIPTION_DB
-          value: "{{ .Values.global.postgresql.auth.databases.0.name }}"
+          value: "{{ index .Values.global.postgresql.auth.databases 0 "name" }}"
         - name: USER_SUBSCRIPTION_DB_USER
-          value: "{{ .Values.global.postgresql.auth.databases.0.user }}"
+          value: "{{ index .Values.global.postgresql.auth.databases 0 "user" }}"
         - name: USER_SUBSCRIPTION_DB_PASSWORD
-          value: "{{ .Values.global.postgresql.auth.databases.0.password }}"
+          value: "{{ index .Values.global.postgresql.auth.databases 0 "password" }}"
         - name: STOCK_DATA_DB
-          value: "{{ .Values.global.postgresql.auth.databases.1.name }}"
+          value: "{{ index .Values.global.postgresql.auth.databases 1 "name" }}"
         - name: STOCK_DATA_DB_USER
-          value: "{{ .Values.global.postgresql.auth.databases.1.user }}"
+          value: "{{ index .Values.global.postgresql.auth.databases 1 "user" }}"
         - name: STOCK_DATA_DB_PASSWORD
-          value: "{{ .Values.global.postgresql.auth.databases.1.password }}"
+          value: "{{ index .Values.global.postgresql.auth.databases 1 "password" }}"
         command:
           - "sh"
           - "-c"
