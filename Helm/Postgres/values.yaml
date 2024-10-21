@@ -15,18 +15,13 @@ image:
 global:
   postgresql:
     auth:
-      user_subscription_db:
-        name: user_subscription_db
-        user: user_subscription_user
-        password: subscription_password
-      stock_data_db:
-        name: stock_data_db
-        user: stock_data_user
-        password: stock_password
       databases:
-        - name: user_subscription_db
+        user_subscription_db:
+          name: user_subscription_db
           user: user_subscription_user
           password: subscription_password
-        - name: stock_data_db
+        stock_data_db:
+          name: stock_data_db
           user: stock_data_user
           password: stock_password
+
