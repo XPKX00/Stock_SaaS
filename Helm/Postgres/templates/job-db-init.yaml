@@ -58,7 +58,6 @@ spec:
 
             echo "PostgreSQL is ready. Creating databases and users if not already present..."
 
-            # Check if the databases exist, create if they don't
             echo "Checking if database $USER_SUBSCRIPTION_DB exists..."
             psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_database WHERE datname = '$USER_SUBSCRIPTION_DB'" | grep -q 1 || \
               psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -c "CREATE DATABASE \"$USER_SUBSCRIPTION_DB\""
@@ -99,4 +98,8 @@ spec:
 
             echo "Database and user initialization complete."
       restartPolicy: OnFailure
+      volumes:
+      - name: init-scripts
+        configMap:
+          name: postgres-init-scripts  # You must define this ConfigMap containing your SQL files
   backoffLimit: 4
