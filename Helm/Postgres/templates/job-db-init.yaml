@@ -60,23 +60,37 @@ spec:
 
             # Check if the databases exist, create if they don't
             echo "Checking if database $USER_SUBSCRIPTION_DB exists..."
-            psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_database WHERE datname = '$USER_SUBSCRIPTION_DB'" | grep -q 1 || \
+            if psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_database WHERE datname = '$USER_SUBSCRIPTION_DB'" | grep -q 1; then
+              echo "Database $USER_SUBSCRIPTION_DB already exists."
+            else
+              echo "Database $USER_SUBSCRIPTION_DB does not exist, creating..."
               psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -c "CREATE DATABASE \"$USER_SUBSCRIPTION_DB\""
-            echo "Database $USER_SUBSCRIPTION_DB created or already exists."
+            fi
 
             echo "Checking if database $STOCK_DATA_DB exists..."
-            psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_database WHERE datname = '$STOCK_DATA_DB'" | grep -q 1 || \
+            if psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_database WHERE datname = '$STOCK_DATA_DB'" | grep -q 1; then
+              echo "Database $STOCK_DATA_DB already exists."
+            else
+              echo "Database $STOCK_DATA_DB does not exist, creating..."
               psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -c "CREATE DATABASE \"$STOCK_DATA_DB\""
-            echo "Database $STOCK_DATA_DB created or already exists."
+            fi
 
             # Create users for each database if not already present
             echo "Checking if user $USER_SUBSCRIPTION_DB_USER exists..."
-            psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$USER_SUBSCRIPTION_DB_USER') THEN CREATE ROLE \"$USER_SUBSCRIPTION_DB_USER\" WITH LOGIN PASSWORD '$USER_SUBSCRIPTION_DB_PASSWORD'; END IF; END \$\$;"
-            echo "User $USER_SUBSCRIPTION_DB_USER created or already exists."
+            if psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_roles WHERE rolname = '$USER_SUBSCRIPTION_DB_USER'" | grep -q 1; then
+              echo "User $USER_SUBSCRIPTION_DB_USER already exists."
+            else
+              echo "User $USER_SUBSCRIPTION_DB_USER does not exist, creating..."
+              psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -c "CREATE ROLE \"$USER_SUBSCRIPTION_DB_USER\" WITH LOGIN PASSWORD '$USER_SUBSCRIPTION_DB_PASSWORD';"
+            fi
 
             echo "Checking if user $STOCK_DATA_DB_USER exists..."
-            psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$STOCK_DATA_DB_USER') THEN CREATE ROLE \"$STOCK_DATA_DB_USER\" WITH LOGIN PASSWORD '$STOCK_DATA_DB_PASSWORD'; END IF; END \$\$;"
-            echo "User $STOCK_DATA_DB_USER created or already exists."
+            if psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_roles WHERE rolname = '$STOCK_DATA_DB_USER'" | grep -q 1; then
+              echo "User $STOCK_DATA_DB_USER already exists."
+            else
+              echo "User $STOCK_DATA_DB_USER does not exist, creating..."
+              psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -c "CREATE ROLE \"$STOCK_DATA_DB_USER\" WITH LOGIN PASSWORD '$STOCK_DATA_DB_PASSWORD';"
+            fi
 
             # Grant privileges to the new users
             echo "Granting privileges on $USER_SUBSCRIPTION_DB to $USER_SUBSCRIPTION_DB_USER..."
@@ -89,13 +103,21 @@ spec:
 
             # Create tables in the user subscription database
             echo "Connecting to database $USER_SUBSCRIPTION_DB and creating tables..."
-            PGPASSWORD="$USER_SUBSCRIPTION_DB_PASSWORD" psql -h {{ .Release.Name }}-postgres -d "$USER_SUBSCRIPTION_DB" -U "$USER_SUBSCRIPTION_DB_USER" -f /docker-entrypoint-initdb.d/create_user_subscription_db.sql || \
-              echo "Error: Failed to create tables in $USER_SUBSCRIPTION_DB."
+            if [ -f /docker-entrypoint-initdb.d/create_user_subscription_db.sql ]; then
+              PGPASSWORD="$USER_SUBSCRIPTION_DB_PASSWORD" psql -h {{ .Release.Name }}-postgres -d "$USER_SUBSCRIPTION_DB" -U "$USER_SUBSCRIPTION_DB_USER" -f /docker-entrypoint-initdb.d/create_user_subscription_db.sql || \
+                echo "Error: Failed to create tables in $USER_SUBSCRIPTION_DB."
+            else
+              echo "SQL script for user_subscription_db not found."
+            fi
 
             # Create tables in the stock data database
             echo "Connecting to database $STOCK_DATA_DB and creating tables..."
-            PGPASSWORD="$STOCK_DATA_DB_PASSWORD" psql -h {{ .Release.Name }}-postgres -d "$STOCK_DATA_DB" -U "$STOCK_DATA_DB_USER" -f /docker-entrypoint-initdb.d/create_stock_data_db.sql || \
-              echo "Error: Failed to create tables in $STOCK_DATA_DB."
+            if [ -f /docker-entrypoint-initdb.d/create_stock_data_db.sql ]; then
+              PGPASSWORD="$STOCK_DATA_DB_PASSWORD" psql -h {{ .Release.Name }}-postgres -d "$STOCK_DATA_DB" -U "$STOCK_DATA_DB_USER" -f /docker-entrypoint-initdb.d/create_stock_data_db.sql || \
+                echo "Error: Failed to create tables in $STOCK_DATA_DB."
+            else
+              echo "SQL script for stock_data_db not found."
+            fi
 
             echo "Database and user initialization complete."
       restartPolicy: OnFailure
