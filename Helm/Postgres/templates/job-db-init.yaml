@@ -25,18 +25,23 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: db-password
+        - name: PGPASSWORD  # This is crucial for `psql` commands to automatically use the password
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: db-password
         - name: USER_SUBSCRIPTION_DB
-          value: "{{ index .Values.global.postgresql.auth.databases 0 "name" }}"
+          value: "{{ .Values.global.postgresql.auth.databases[0].name }}"
         - name: USER_SUBSCRIPTION_DB_USER
-          value: "{{ index .Values.global.postgresql.auth.databases 0 "user" }}"
+          value: "{{ .Values.global.postgresql.auth.databases[0].user }}"
         - name: USER_SUBSCRIPTION_DB_PASSWORD
-          value: "{{ index .Values.global.postgresql.auth.databases 0 "password" }}"
+          value: "{{ .Values.global.postgresql.auth.databases[0].password }}"
         - name: STOCK_DATA_DB
-          value: "{{ index .Values.global.postgresql.auth.databases 1 "name" }}"
+          value: "{{ .Values.global.postgresql.auth.databases[1].name }}"
         - name: STOCK_DATA_DB_USER
-          value: "{{ index .Values.global.postgresql.auth.databases 1 "user" }}"
+          value: "{{ .Values.global.postgresql.auth.databases[1].user }}"
         - name: STOCK_DATA_DB_PASSWORD
-          value: "{{ index .Values.global.postgresql.auth.databases 1 "password" }}"
+          value: "{{ .Values.global.postgresql.auth.databases[1].password }}"
         command:
           - "sh"
           - "-c"
@@ -66,12 +71,10 @@ spec:
             psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" -c "GRANT ALL PRIVILEGES ON DATABASE \"$STOCK_DATA_DB\" TO \"$STOCK_DATA_DB_USER\";"
 
             # Create tables in the user subscription database
-            echo "\c \"$USER_SUBSCRIPTION_DB\";" | psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" && \
-            echo "$CREATE_USER_SUBSCRIPTION_DB_SQL" | psql -h {{ .Release.Name }}-postgres -U "$USER_SUBSCRIPTION_DB_USER"
+            psql -h {{ .Release.Name }}-postgres -U "$USER_SUBSCRIPTION_DB_USER" -d "$USER_SUBSCRIPTION_DB" -c "$CREATE_USER_SUBSCRIPTION_DB_SQL"
 
             # Create tables in the stock data database
-            echo "\c \"$STOCK_DATA_DB\";" | psql -h {{ .Release.Name }}-postgres -U "$POSTGRES_USER" && \
-            echo "$CREATE_STOCK_DATA_DB_SQL" | psql -h {{ .Release.Name }}-postgres -U "$STOCK_DATA_DB_USER"
+            psql -h {{ .Release.Name }}-postgres -U "$STOCK_DATA_DB_USER" -d "$STOCK_DATA_DB" -c "$CREATE_STOCK_DATA_DB_SQL"
 
             echo "Database and user initialization complete."
       restartPolicy: OnFailure
