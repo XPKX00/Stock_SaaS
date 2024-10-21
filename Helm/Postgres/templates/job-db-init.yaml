@@ -36,6 +36,7 @@ spec:
           - "-c"
           - |
             echo "Starting database initialization"
+            sleep 60
             until pg_isready -h {{ .Release.Name }}-postgres -p 5432 -U "$POSTGRES_USER"; do
               >&2 echo "PostgreSQL is unavailable - sleeping"
               sleep 5
