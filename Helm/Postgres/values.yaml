@@ -15,11 +15,14 @@ image:
 global:
   postgresql:
     auth:
-      username: admin
-      password: adminpassword
-      database: postgres
-      replicationUser: repl_user
-      replicationPassword: repl_password
+      user_subscription_db:
+        name: user_subscription_db
+        user: user_subscription_user
+        password: subscription_password
+      stock_data_db:
+        name: stock_data_db
+        user: stock_data_user
+        password: stock_password
       databases:
         - name: user_subscription_db
           user: user_subscription_user
