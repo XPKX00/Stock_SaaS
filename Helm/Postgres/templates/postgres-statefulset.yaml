@@ -22,7 +22,7 @@ spec:
               - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - node2  # Ensure that node2 is the target node you want to use
+                - node2  
       containers:
       - name: postgres
         image: {{ .Values.postgres.image }}
