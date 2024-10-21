@@ -11,13 +11,9 @@ metadata:
 spec:
   template:
     spec:
-      volumes:
-      - name: init-scripts
-        configMap:
-          name: postgres-config-scripts  # Assuming this ConfigMap stores the SQL scripts
       containers:
       - name: init-database
-        image: postgres:13
+        image: {{ .Values.postgres.image }}
         env:
         - name: POSTGRES_USER
           valueFrom:
@@ -29,23 +25,23 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: db-password
-        - name: PGPASSWORD
+        - name: PGPASSWORD  # Set PGPASSWORD for automatic password usage by psql
           valueFrom:
             secretKeyRef:
               name: postgres-secret
               key: db-password
         - name: USER_SUBSCRIPTION_DB
-          value: "{{ .Values.global.postgresql.auth.user_subscription_db.name | default "default_subscription_db" }}"
+          value: "{{ .Values.global.postgresql.auth.databases.user_subscription_db.name | default "default_subscription_db" }}"
         - name: USER_SUBSCRIPTION_DB_USER
-          value: "{{ .Values.global.postgresql.auth.user_subscription_db.user | default "default_user" }}"
+          value: "{{ .Values.global.postgresql.auth.databases.user_subscription_db.user | default "default_user" }}"
         - name: USER_SUBSCRIPTION_DB_PASSWORD
-          value: "{{ .Values.global.postgresql.auth.user_subscription_db.password | default "default_password" }}"
+          value: "{{ .Values.global.postgresql.auth.databases.user_subscription_db.password | default "default_password" }}"
         - name: STOCK_DATA_DB
-          value: "{{ .Values.global.postgresql.auth.stock_data_db.name | default "default_stock_data_db" }}"
+          value: "{{ .Values.global.postgresql.auth.databases.stock_data_db.name | default "default_stock_data_db" }}"
         - name: STOCK_DATA_DB_USER
-          value: "{{ .Values.global.postgresql.auth.stock_data_db.user | default "default_user" }}"
+          value: "{{ .Values.global.postgresql.auth.databases.stock_data_db.user | default "default_user" }}"
         - name: STOCK_DATA_DB_PASSWORD
-          value: "{{ .Values.global.postgresql.auth.stock_data_db.password | default "default_password" }}"
+          value: "{{ .Values.global.postgresql.auth.databases.stock_data_db.password | default "default_password" }}"
         volumeMounts:
         - name: init-scripts
           mountPath: /docker-entrypoint-initdb.d/
