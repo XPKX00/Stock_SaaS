@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-scripts
+  namespace: database
+data:
+  create_user_subscription_db.sql: |-
+    {{ (.Files.Get "initdb/create_user_subscription_db.sql") | indent 4 }}
+  create_stock_data_db.sql: |-
+    {{ (.Files.Get "initdb/create_stock_data_db.sql") | indent 4 }}
