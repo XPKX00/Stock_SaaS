@@ -57,6 +57,7 @@ BEGIN
       order_type TEXT CHECK (order_type IN ('market', 'limit')) NOT NULL,
       quantity NUMERIC NOT NULL,
       price NUMERIC NOT NULL,
+      price2 NUMERIC NOT NULL,
       timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       status TEXT CHECK (status IN ('pending', 'executed', 'canceled')) NOT NULL
     );
