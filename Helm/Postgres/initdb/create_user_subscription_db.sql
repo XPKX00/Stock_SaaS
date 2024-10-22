@@ -1,6 +1,6 @@
 \c user_subscription_db;
 
--- Users Table
+-- Users Table (must be created first to be referenced by other tables)
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'users') THEN
@@ -13,6 +13,52 @@ BEGIN
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       last_login TIMESTAMP,
       account_status TEXT CHECK (account_status IN ('active', 'suspended', 'deleted'))
+    );
+  END IF;
+END $$;
+
+-- Subscriptions Table (must be created before referencing in user_subscriptions)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'subscriptions') THEN
+    CREATE TABLE subscriptions (
+      subscription_id SERIAL PRIMARY KEY,
+      plan_name TEXT NOT NULL,
+      description TEXT,
+      price NUMERIC NOT NULL,  -- Monthly subscription price
+      tick_limit INTEGER,  -- Number of tick data allowed per month
+      ai_model_access TEXT[] DEFAULT '{}'  -- Array of AI model access levels (e.g., 'basic', 'pro')
+    );
+  END IF;
+END $$;
+
+-- AI Models Table (must be created before referencing in user_ai_model_access)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'ai_models') THEN
+    CREATE TABLE ai_models (
+      ai_model_id SERIAL PRIMARY KEY,
+      model_name TEXT NOT NULL,
+      model_version TEXT,
+      access_level TEXT CHECK (access_level IN ('basic', 'pro', 'premium')) NOT NULL
+    );
+  END IF;
+END $$;
+
+-- Orders Table (must be created before referencing in audit_logs)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'orders') THEN
+    CREATE TABLE orders (
+      order_id SERIAL PRIMARY KEY,
+      tenant_id UUID NOT NULL,  -- For multi-tenancy support
+      user_id INTEGER REFERENCES users(user_id),
+      ticker TEXT NOT NULL,
+      order_type TEXT CHECK (order_type IN ('market', 'limit')) NOT NULL,
+      quantity NUMERIC NOT NULL,
+      price NUMERIC NOT NULL,
+      timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      status TEXT CHECK (status IN ('pending', 'executed', 'canceled')) NOT NULL
     );
   END IF;
 END $$;
@@ -45,20 +91,6 @@ BEGIN
   END IF;
 END $$;
 
--- Subscriptions Table
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'subscriptions') THEN
-    CREATE TABLE subscriptions (
-      subscription_id SERIAL PRIMARY KEY,
-      plan_name TEXT NOT NULL,
-      description TEXT,
-      price NUMERIC NOT NULL,  -- Monthly subscription price
-      tick_limit INTEGER,  -- Number of tick data allowed per month
-      ai_model_access TEXT[] DEFAULT '{}'  -- Array of AI model access levels (e.g., 'basic', 'pro')
-    );
-  END IF;
-END $$;
 -- User AI Model Access Table
 DO $$
 BEGIN
@@ -73,23 +105,6 @@ BEGIN
   END IF;
 END $$;
 
--- Orders Table
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'orders') THEN
-    CREATE TABLE orders (
-      order_id SERIAL PRIMARY KEY,
-      tenant_id UUID NOT NULL,  -- For multi-tenancy support
-      user_id INTEGER REFERENCES users(user_id),
-      ticker TEXT NOT NULL,
-      order_type TEXT CHECK (order_type IN ('market', 'limit')) NOT NULL,
-      quantity NUMERIC NOT NULL,
-      price NUMERIC NOT NULL,
-      timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      status TEXT CHECK (status IN ('pending', 'executed', 'canceled')) NOT NULL
-    );
-  END IF;
-END $$;
 -- Audit Logs Table
 DO $$
 BEGIN

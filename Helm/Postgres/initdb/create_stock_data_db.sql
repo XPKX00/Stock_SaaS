@@ -1,5 +1,18 @@
 \c stock_data_db;
 
+-- Users Table (Create this first to handle foreign key references)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'users') THEN
+    CREATE TABLE users (
+      user_id SERIAL PRIMARY KEY,
+      username TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  END IF;
+END $$;
+
 -- Stock Data Table
 DO $$
 BEGIN
@@ -15,7 +28,7 @@ BEGIN
       low NUMERIC,
       volume NUMERIC,
       user_id INTEGER REFERENCES users(user_id),
-      CONSTRAINT stock_data_uniq UNIQUE (ticker, timestamp)  -- Ensure no duplicate entries for same time and ticker
+      CONSTRAINT stock_data_uniq UNIQUE (ticker, timestamp)  -- Ensure no duplicate entries for the same time and ticker
     );
   END IF;
 END $$;
@@ -35,6 +48,7 @@ BEGIN
     );
   END IF;
 END $$;
+
 -- Predictions Table
 DO $$
 BEGIN
@@ -94,6 +108,7 @@ BEGIN
     );
   END IF;
 END $$;
+
 -- Indicator Types Table
 DO $$
 BEGIN
@@ -105,5 +120,3 @@ BEGIN
     );
   END IF;
 END $$;
-```
-
