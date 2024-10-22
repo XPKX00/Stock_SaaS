@@ -1,7 +1,7 @@
 -- Define the action to be taken
 DO $$
 DECLARE
-    action TEXT := 'delete';  -- Set to 'create' to create tables, or 'delete' to drop tables
+    action TEXT := 'create';  -- Set to 'create' to create tables, or 'delete' to drop tables
 BEGIN
 
     -- Delete all tables
