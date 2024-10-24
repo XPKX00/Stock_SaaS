@@ -10,7 +10,7 @@ externalDatabase:
   database: user_subscription_db
   user: user_subscription_user
   password:
-    existingSecret: postgres-secret  # The name of the secret storing the database password
+    existingSecret: gravitee-db-secret  # The name of the secret storing the database password
     existingSecretKey: db-password  
 
 gravitee:
