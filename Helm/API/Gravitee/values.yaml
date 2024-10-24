@@ -8,7 +8,13 @@ gravitee:
       type: ClusterIP
 
   management:
-    type: jdbc # Specify that you are using a JDBC database like PostgreSQL instead of the default MongoDB.
+  type: postgresql
+  jdbc:
+    url: jdbc:postgresql://database1-postgres.database.svc.cluster.local:5432/user_subscription_db
+    user: user_subscription_user
+    password:
+      existingSecret: postgres-secret
+      existingSecretKey: db-password # Specify that you are using a JDBC database like PostgreSQL instead of the default MongoDB.
 
   database:
     type: postgresql
