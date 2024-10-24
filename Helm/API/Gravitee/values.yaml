@@ -1,0 +1,20 @@
+global:
+  storageClass: fast-ssd
+
+postgresql:
+  enabled: false # We are using external PostgreSQL.
+
+externalDatabase:
+  host: {{ .Release.Name }}-postgres.database.svc.cluster.local
+  port: 5432
+  user: gravitee_user
+  password:
+    existingSecret: postgres-secret
+    existingSecretKey: db-password
+  database: user_subscription_db
+
+gravitee:
+  gateway:
+    service:
+      type: ClusterIP
+  replicaCount: 2

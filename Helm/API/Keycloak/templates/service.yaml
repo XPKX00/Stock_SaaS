@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: user-management
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: keycloak
+  type: {{ .Values.keycloak.service.type }}

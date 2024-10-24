@@ -1,0 +1,5 @@
+apiVersion: v2
+name: gravitee
+description: Helm chart for deploying Gravitee.io in Kubernetes
+version: 0.1.0
+appVersion: 3.10.4

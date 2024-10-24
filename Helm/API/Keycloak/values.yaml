@@ -1,0 +1,24 @@
+global:
+  storageClass: fast-ssd
+
+postgresql:
+  enabled: false # Disable internal PostgreSQL since we're using an existing DB.
+
+externalDatabase:
+  host: {{ .Release.Name }}-postgres.database.svc.cluster.local
+  port: 5432
+  user: user_subscription_user
+  password:
+    existingSecret: postgres-secret
+    existingSecretKey: db-password
+  database: user_subscription_db
+
+keycloak:
+  auth:
+    adminUser: admin
+    adminPassword:
+      existingSecret: postgres-secret
+      existingSecretKey: keycloak-admin-password
+  service:
+    type: ClusterIP
+  replicaCount: 2
