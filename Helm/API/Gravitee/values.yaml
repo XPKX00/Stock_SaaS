@@ -2,10 +2,10 @@ global:
   storageClass: fast-ssd
 
 postgresql:
-  enabled: false # We are using external PostgreSQL.
+  enabled: false # Disable internal PostgreSQL since we're using an existing DB.
 
 externalDatabase:
-  host: {{ .Release.Name }}-postgres.database.svc.cluster.local
+  host: postgres-service.database.svc.cluster.local # Use the correct namespace/service
   port: 5432
   user: gravitee_user
   password:
