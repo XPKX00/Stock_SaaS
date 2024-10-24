@@ -21,3 +21,6 @@ gravitee:
 
 mongodb:
   enabled: false
+
+elasticsearch:
+  enabled: false
