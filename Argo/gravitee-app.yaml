@@ -11,7 +11,7 @@ spec:
     path: Helm/API/Gravitee
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: usermanagement
+    namespace: user-management
   syncPolicy:
     automated:
       prune: true
