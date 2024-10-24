@@ -17,3 +17,4 @@ spec:
       prune: true
       selfHeal: true
   releaseName: gravitee # Ensure release name is lowercase
+  namespace: user-management
