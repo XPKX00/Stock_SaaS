@@ -1,20 +1,11 @@
-global:
-  storageClass: fast-ssd
-
-postgresql:
-  enabled: false # Disable internal PostgreSQL since we're using an existing DB.
+gravitee:
+  replicaCount: 2  # Number of replicas for your deployment
 
 externalDatabase:
-  host: postgres-service.database.svc.cluster.local # Use the correct namespace/service
+  host: postgres-service.database.svc.cluster.local
   port: 5432
-  user: gravitee_user
-  password:
-    existingSecret: postgres-secret
-    existingSecretKey: db-password
   database: user_subscription_db
-
-gravitee:
-  gateway:
-    service:
-      type: ClusterIP
-  replicaCount: 2
+  user: user_subscription_user
+  password:
+    existingSecret: postgres-secret  # The name of the secret storing the database password
+    existingSecretKey: db-password   # The key of the password inside the secret
