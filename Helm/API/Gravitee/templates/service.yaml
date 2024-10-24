@@ -1,12 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: gravitee-gateway
-  namespace: user-management
+  name: {{ .Release.Name }}-gateway
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}
 spec:
+  type: {{ .Values.gravitee.gateway.service.type }}
   ports:
     - port: 8082
       targetPort: 8082
   selector:
-    app: gravitee
-  type: {{ .Values.gravitee.gateway.service.type }}
+    app: {{ .Release.Name }}
