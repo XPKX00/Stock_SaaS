@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gravitee-config
+  namespace: user-management
+data:
+  gravitee-override.yaml: |
+    gravitee:
+      management:
+        type: jdbc
+      jdbc:
+        host: database1-postgres.database.svc.cluster.local
+        port: 5432
+        database: user_subscription_db
+        username: user_subscription_user
+        password: ${GRAVITEE_DATABASE_PASSWORD}
+      elasticsearch:
+        enabled: false

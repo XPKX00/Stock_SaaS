@@ -1,23 +1,25 @@
-global:
-  storageClass: fast-ssd
-
-postgresql:
-  enabled: false # Disable internal PostgreSQL since we're using an existing DB.
-
-externalDatabase:
-  host: database1-postgres.database.svc.cluster.local
-  port: 5432
-  database: user_subscription_db
-  user: user_subscription_user
-  password:
-    existingSecret: gravitee-db-secret  # The name of the secret storing the database password
-    existingSecretKey: db-password  
-
 gravitee:
   gateway:
-    service:
-      type: ClusterIP
-  replicaCount: 2
+    enabled: true
+    image:
+      repository: graviteeio/apim-gateway
+      tag: 3.10.4
+
+  management:
+    type: jdbc # Specify that you are using a JDBC database like PostgreSQL instead of the default MongoDB.
+
+  database:
+    type: postgresql
+
+    jdbc:
+      enabled: true
+      host: database1-postgres.database.svc.cluster.local
+      port: 5432
+      name: user_subscription_db
+      username: user_subscription_user
+      password:
+        existingSecret: gravitee-db-secret
+        existingSecretKey: db-password
 
 mongodb:
   enabled: false

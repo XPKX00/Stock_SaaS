@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name | lower }}
-  namespace: {{ .Release.Namespace }}
+  name: gravitee
+  namespace: user-management
   labels:
-    app: {{ .Release.Name | lower }}
+    app: gravitee
 spec:
-  replicas: {{ .Values.gravitee.replicaCount }}
+  replicas: 2
   selector:
     matchLabels:
-      app: {{ .Release.Name | lower }}
+      app: gravitee
   template:
     metadata:
       labels:
-        app: {{ .Release.Name | lower }}
+        app: gravitee
     spec:
       containers:
         - name: gravitee
@@ -24,15 +24,23 @@ spec:
             - name: GRAVITEE_DATABASE_TYPE
               value: postgresql
             - name: GRAVITEE_DATABASE_HOST
-              value: {{ .Values.externalDatabase.host }}
+              value: database1-postgres.database.svc.cluster.local
             - name: GRAVITEE_DATABASE_PORT
-              value: "{{ .Values.externalDatabase.port }}"
+              value: "5432"
             - name: GRAVITEE_DATABASE_NAME
-              value: {{ .Values.externalDatabase.database }}
+              value: user_subscription_db
             - name: GRAVITEE_DATABASE_USERNAME
-              value: {{ .Values.externalDatabase.user }}
+              value: user_subscription_user
             - name: GRAVITEE_DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.externalDatabase.password.existingSecret }}
-                  key: {{ .Values.externalDatabase.password.existingSecretKey }}
+                  name: gravitee-db-secret
+                  key: db-password
+          volumeMounts:
+            - name: gravitee-override
+              mountPath: /gravitee/config/gravitee-override.yaml
+              subPath: gravitee-override.yaml
+      volumes:
+        - name: gravitee-override
+          configMap:
+            name: gravitee-config
