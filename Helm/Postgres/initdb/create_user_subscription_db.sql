@@ -1,7 +1,7 @@
 -- Define the action to be taken
 DO $$
 DECLARE
-    action TEXT := 'create';  -- Set to 'create' to create tables, or 'delete' to drop tables
+    action TEXT := 'delete';  -- Set to 'create' to create tables, or 'delete' to drop tables
 BEGIN
 
     -- Delete all tables
@@ -30,6 +30,8 @@ BEGIN
 
         -- Drop Users Table
         EXECUTE 'DROP TABLE IF EXISTS users CASCADE';
+         -- Drop API Table
+        EXECUTE 'DROP TABLE IF EXISTS users CASCADE';
 
     -- Create all tables
     ELSIF action = 'create' THEN
@@ -46,6 +48,19 @@ BEGIN
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 last_login TIMESTAMP,
                 account_status TEXT CHECK (account_status IN (''active'', ''suspended'', ''deleted''))
+            )';
+        END IF;
+
+          -- API Table
+        IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'user_api_keys') THEN
+            EXECUTE '
+            CREATE TABLE user_api_keys (
+                user_id UUID PRIMARY KEY REFERENCES users(user_id),
+                alpaca_live_api_key TEXT,
+                alpaca_paper_api_key TEXT,
+                live_api_key_verified BOOLEAN DEFAULT FALSE,
+                paper_api_key_verified BOOLEAN DEFAULT FALSE,
+                verification_date TIMESTAMP
             )';
         END IF;
 
