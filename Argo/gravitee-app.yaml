@@ -16,4 +16,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-  releaseName: gravitee # Ensure release name is all lowercase
