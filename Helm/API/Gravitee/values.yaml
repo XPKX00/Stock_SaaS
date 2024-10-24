@@ -4,6 +4,8 @@ gravitee:
     image:
       repository: graviteeio/apim-gateway
       tag: 3.10.4
+    service:
+      type: ClusterIP
 
   management:
     type: jdbc # Specify that you are using a JDBC database like PostgreSQL instead of the default MongoDB.
