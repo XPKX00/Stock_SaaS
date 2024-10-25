@@ -8,17 +8,15 @@ gravitee:
       type: ClusterIP
 
   management:
-  type: postgresql
-  jdbc:
-    url: jdbc:postgresql://database1-postgres.database.svc.cluster.local:5432/user_subscription_db
-    user: user_subscription_user
-    password:
-      existingSecret: postgres-secret
-      existingSecretKey: db-password # Specify that you are using a JDBC database like PostgreSQL instead of the default MongoDB.
+    type: postgresql
+    jdbc:
+      driver: https://jdbc.postgresql.org/download/postgresql-42.2.23.jar
+      url: jdbc:postgresql://postgres-apim-postgresql:5432/graviteeapim
+      username: postgres
+      password: P@ssw0rd
 
   database:
     type: postgresql
-
     jdbc:
       enabled: true
       host: database1-postgres.database.svc.cluster.local
