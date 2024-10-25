@@ -5,18 +5,36 @@ gravitee:
       repository: graviteeio/apim-gateway
       tag: 3.10.4
     service:
-      type: ClusterIP
+      type: LoadBalancer  # ClusterIP for internal-only, LoadBalancer if external access is needed
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 5
+    livenessProbe:
+      httpGet:
+        path: /_status
+        port: 8082
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /_status
+        port: 8082
+      initialDelaySeconds: 15
+      periodSeconds: 5
 
   management:
-    type: postgresql
+    type: jdbc
     jdbc:
       driver: https://jdbc.postgresql.org/download/postgresql-42.2.23.jar
-      url: jdbc:postgresql://postgres-apim-postgresql:5432/graviteeapim
-      username: postgres
-      password: P@ssw0rd
+      url: jdbc:postgresql://postgres-apim-postgresql:5432/gravitee_management
+      username: gravitee_user
+      password:
+        existingSecret: gravitee-management-secret
+        existingSecretKey: db-password
 
   database:
-    type: postgresql
+    type: jdbc
     jdbc:
       enabled: true
       host: database1-postgres.database.svc.cluster.local
@@ -26,6 +44,36 @@ gravitee:
       password:
         existingSecret: gravitee-db-secret
         existingSecretKey: db-password
+      pool:
+        minIdle: 5
+        maxPoolSize: 20
+        maxLifetime: 1800000
+
+  rateLimit:
+    enabled: true
+    limit: 1000
+    interval: 1m
+
+  security:
+    csrf:
+      enabled: true
+    cors:
+      allowedOrigins:
+        - "https://*.yourdomain.com"
+      allowedMethods:
+        - GET
+        - POST
+        - DELETE
+        - PATCH
+
+  audit:
+    enabled: true
+
+  observability:
+    prometheus:
+      enabled: true
+    grafana:
+      enabled: true
 
 mongodb:
   enabled: false
