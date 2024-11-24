@@ -1,5 +1,0 @@
-apiVersion: v2
-name: gravitee
-description: A Helm chart for deploying Gravitee.io
-version: 1.0.0 # This is the version of your Helm chart
-appVersion: 3.10.4 # Specify the version of Gravitee.io being deployed
