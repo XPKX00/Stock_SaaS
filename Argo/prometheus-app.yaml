@@ -2,21 +2,59 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: prometheus
-  namespace: argocd
+  namespace: argocd  # Adjust if ArgoCD is in a different namespace
 spec:
   project: default
   source:
     repoURL: https://prometheus-community.github.io/helm-charts
-    chart: kube-prometheus-stack
-    targetRevision: "34.0.0" # Use a stable version as per the issue we encountered
+    targetRevision: 26.0.0
+    chart: prometheus
     helm:
-      releaseName: prometheus
+      parameters:
+        # Alertmanager Persistence
+        - name: alertmanager.persistence.enabled
+          value: 'true'
+        - name: alertmanager.persistence.existingClaim
+          value: prometheus-alertmanager-pvc
+        - name: alertmanager.persistence.storageClass
+          value: fast-ssd
+        - name: alertmanager.persistence.accessMode
+          value: ReadWriteOnce
+        - name: alertmanager.persistence.size
+          value: 2Gi
+
+        # Prometheus Server Persistence
+        - name: server.persistentVolume.enabled
+          value: 'true'
+        - name: server.persistentVolume.existingClaim
+          value: prometheus-server-pvc
+        - name: server.persistentVolume.storageClass
+          value: fast-ssd
+        - name: server.persistentVolume.accessModes[0]
+          value: ReadWriteOnce
+        - name: server.persistentVolume.size
+          value: 5Gi
+
+        # Additional Prometheus Storage Persistence
+        - name: storage.persistentVolume.enabled
+          value: 'true'
+        - name: storage.persistentVolume.existingClaim
+          value: prometheus-storage-pvc
+        - name: storage.persistentVolume.storageClass
+          value: fast-ssd
+        - name: storage.persistentVolume.accessModes[0]
+          value: ReadWriteOnce
+        - name: storage.persistentVolume.size
+          value: 5Gi
+
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - server-side-apply=true
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
