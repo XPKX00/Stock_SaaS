@@ -7,7 +7,7 @@ postgres:
   storage: 5Gi
 
 service:
-  name: postgres
+  name: database1-postgres
   type: ClusterIP
   port: 5432 
 
