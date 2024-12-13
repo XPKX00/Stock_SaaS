@@ -9,7 +9,7 @@ postgres:
 service:
   name: postgres
   type: ClusterIP
-  port: 5432 # Ensure this port matches your PostgreSQL configuration.
+  port: 5432 
 
 image:
   pullPolicy: IfNotPresent
@@ -37,4 +37,4 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-  tls: [] # Optional, configure this for HTTPS if required.
+  tlsSecretName: postgres-tls
