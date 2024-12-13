@@ -1,5 +1,5 @@
 {{/*
-Generate a fullname for the resource. Uses Release.Name or defaults to "default" if Release.Name is unavailable.
+Generate a fullname for the resource. Uses .Release.Name or defaults to "default" if .Release.Name is unavailable.
 */}}
 {{- define "postgres.fullname" -}}
 {{- if .Release.Name -}}
