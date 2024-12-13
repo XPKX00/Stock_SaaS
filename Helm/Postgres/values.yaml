@@ -8,6 +8,7 @@ postgres:
 
 service:
   type: ClusterIP
+  port: 5432 # Ensure this port matches your PostgreSQL configuration.
 
 image:
   pullPolicy: IfNotPresent
@@ -25,3 +26,14 @@ global:
           user: stock_data_user
           password: stock_password
 
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/backend-protocol: "TCP"
+  hosts:
+    - host: database.home.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: [] # Optional, configure this for HTTPS if required.
