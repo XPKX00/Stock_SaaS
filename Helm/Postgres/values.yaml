@@ -25,7 +25,7 @@ global:
           name: stock_data_db
           user: stock_data_user
           password: stock_password
-
+        
 ingress:
   enabled: true
   annotations:
