@@ -38,4 +38,4 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-  tlsSecretName: postgres-tls
+ # tlsSecretName: postgres-tls
