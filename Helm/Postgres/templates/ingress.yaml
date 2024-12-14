@@ -5,13 +5,17 @@ metadata:
   namespace: database
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/backend-protocol: "TCP"
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"  # Optional
+    nginx.ingress.kubernetes.io/backend-protocol: "TCP"  # Specifies that the backend uses TCP
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"    # Disables HTTP to HTTPS redirection
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - database.home.com
-      secretName: postgres-tls
+        {{- range .Values.ingress.hosts }}
+        - {{ .host }}
+        {{- end }}
+      secretName: {{ .Values.ingress.tlsSecretName }}  # Secret containing TLS certificate and key
   rules:
-    - host: database.home.com
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host }}
+    {{- end }}
