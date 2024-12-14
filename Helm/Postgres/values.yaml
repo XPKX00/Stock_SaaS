@@ -8,7 +8,8 @@ postgres:
 
 service:
   name: database1-postgres
-  type: ClusterIP
+  type: ClusterIP # Options: ClusterIP, LoadBalancer, NodePort
+  clusterIP: None # Applicable only for ClusterIP services
   port: 5432 
 
 image:

@@ -1,14 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ .Release.Name }}-postgres"
+  name: "{{ .Values.service.name }}"
   namespace: "{{ .Release.Namespace }}"
   labels:
     app: "{{ .Release.Name }}-postgres"
 spec:
-  clusterIP: None  # Headless service required for StatefulSet
+  {{- if eq .Values.service.type "ClusterIP" }}
+  clusterIP: {{ .Values.service.clusterIP | default "None" }} # Headless if "None"
+  {{- end }}
+  type: {{ .Values.service.type | default "ClusterIP" }}
   ports:
-    - port: 5432
-      targetPort: 5432
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
   selector:
     app: "{{ .Release.Name }}-postgres"
