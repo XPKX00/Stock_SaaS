@@ -9,7 +9,6 @@ postgres:
 service:
   name: database1-postgres
   type: NodePort  # Change to NodePort for external access (Options: ClusterIP, LoadBalancer, NodePort)
-  clusterIP: None # Applicable only for ClusterIP services
   port: 5432
   nodePort: 30036 # NodePort to expose (range: 30000-32767)
 
