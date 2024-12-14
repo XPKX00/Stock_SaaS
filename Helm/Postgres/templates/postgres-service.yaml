@@ -13,5 +13,9 @@ spec:
   ports:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.nodePort | default 30036 }}
+      {{- end }}
   selector:
     app: "{{ .Release.Name }}-postgres"
