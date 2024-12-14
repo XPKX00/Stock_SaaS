@@ -7,6 +7,9 @@ metadata:
     app: "{{ .Release.Name }}-postgres"
 spec:
   type: {{ .Values.service.type | default "ClusterIP" }}
+  {{- if eq .Values.service.type "ClusterIP" }}
+  clusterIP: {{ .Values.service.clusterIP | default "None" }} # Only for ClusterIP services
+  {{- end }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.port }}
