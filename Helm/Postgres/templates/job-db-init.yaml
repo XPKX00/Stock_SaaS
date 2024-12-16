@@ -133,8 +133,8 @@ spec:
              psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -c "CREATE DATABASE \"$MAKERKIT_TURBO_DB\""
             fi
 
-           # Check if MakerkitTurbo_db user exists
-           echo "Checking if user $MAKERKIT_TURBO_DB_USER exists..."
+          # Check if MakerkitTurbo_db user exists
+            echo "Checking if user $MAKERKIT_TURBO_DB_USER exists..."
            if psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_roles WHERE rolname = '$MAKERKIT_TURBO_DB_USER'" | grep -q 1; then
              echo "User $MAKERKIT_TURBO_DB_USER already exists."
             else
