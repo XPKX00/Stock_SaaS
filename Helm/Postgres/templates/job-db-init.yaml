@@ -142,16 +142,16 @@ spec:
              psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -c "CREATE ROLE \"$MAKERKIT_TURBO_DB_USER\" WITH LOGIN PASSWORD '$MAKERKIT_TURBO_DB_PASSWORD';"
             fi
 
-           # Grant privileges to MakerkitTurbo_db user
+            # Grant privileges to MakerkitTurbo_db user
             echo "Granting privileges on $MAKERKIT_TURBO_DB to $MAKERKIT_TURBO_DB_USER..."
             psql -h {{ .Release.Name }}-postgres -d postgres -U "$POSTGRES_USER" -c "GRANT ALL PRIVILEGES ON DATABASE \"$MAKERKIT_TURBO_DB\" TO \"$MAKERKIT_TURBO_DB_USER\";"
             echo "Privileges granted."
 
-          # Execute the create_MakerkitTurbo_db.sql script
-            echo "Connecting to database $MAKERKIT_TURBO_DB and creating tables..."
+            # Execute the create_MakerkitTurbo_db.sql script
+           echo "Connecting to database $MAKERKIT_TURBO_DB and creating tables..."
            if [ -f /docker-entrypoint-initdb.d/create_MakerkitTurbo_db.sql ]; then
-             PGPASSWORD="$MAKERKIT_TURBO_DB_PASSWORD" psql -h {{ .Release.Name }}-postgres -d "$MAKERKIT_TURBO_DB" -U "$MAKERKIT_TURBO_DB_USER" -f /docker-entrypoint-initdb.d/create_MakerkitTurbo_db.sql || \
-             echo "Error: Failed to create tables in $MAKERKIT_TURBO_DB."
+              PGPASSWORD="$MAKERKIT_TURBO_DB_PASSWORD" psql -h {{ .Release.Name }}-postgres -d "$MAKERKIT_TURBO_DB" -U "$MAKERKIT_TURBO_DB_USER" -f /docker-entrypoint-initdb.d/create_MakerkitTurbo_db.sql || \
+              echo "Error: Failed to create tables in $MAKERKIT_TURBO_DB."
             else
               echo "SQL script for MakerkitTurbo_db not found."
             fi
