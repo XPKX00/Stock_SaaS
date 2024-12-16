@@ -148,8 +148,8 @@ spec:
             echo "Privileges granted."
 
             # Execute the create_MakerkitTurbo_db.sql script
-           echo "Connecting to database $MAKERKIT_TURBO_DB and creating tables..."
-           if [ -f /docker-entrypoint-initdb.d/create_MakerkitTurbo_db.sql ]; then
+            echo "Connecting to database $MAKERKIT_TURBO_DB and creating tables..."
+            if [ -f /docker-entrypoint-initdb.d/create_MakerkitTurbo_db.sql ]; then
               PGPASSWORD="$MAKERKIT_TURBO_DB_PASSWORD" psql -h {{ .Release.Name }}-postgres -d "$MAKERKIT_TURBO_DB" -U "$MAKERKIT_TURBO_DB_USER" -f /docker-entrypoint-initdb.d/create_MakerkitTurbo_db.sql || \
               echo "Error: Failed to create tables in $MAKERKIT_TURBO_DB."
             else
