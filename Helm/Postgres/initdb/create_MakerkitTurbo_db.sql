@@ -1,4 +1,3 @@
--- Switch to the database
 \c makerkit_db;
 
 -- Define the action to be taken (create or drop)

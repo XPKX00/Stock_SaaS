@@ -8,5 +8,5 @@ data:
     {{ .Files.Get "initdb/create_stock_data_db.sql" | nindent 4 }}
   create_user_subscription_db.sql: |-
     {{ .Files.Get "initdb/create_user_subscription_db.sql" | nindent 4 }}
-  creat_MakerkitTurbo_db.sql: |-
-    {{ .Files.Get "initdb/creat_MakerkitTurbo_db.sql" | nindent 4 }}
+  create_MakerkitTurbo_db.sql: |-
+    {{ .Files.Get "initdb/create_MakerkitTurbo_db.sql" | nindent 4 }}
