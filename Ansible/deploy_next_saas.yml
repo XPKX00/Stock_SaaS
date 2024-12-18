@@ -1,5 +1,5 @@
 - name: Deploy Latest Makerkit Turbo with Supabase
-  hosts: linux_vm
+  hosts: servers
   become: true
 
   vars:
@@ -58,4 +58,9 @@
 
     - name: Report the application status
       debug:
-        msg: "Application successfully deployed and is running!" if app_status.status == 200 else "Application failed to start."
+        msg: >-
+          {% if app_status.status == 200 %}
+          Application successfully deployed and is running!
+          {% else %}
+          Application failed to start.
+          {% endif %}
