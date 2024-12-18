@@ -1,0 +1,61 @@
+- name: Deploy Latest Makerkit Turbo with Supabase
+  hosts: linux_vm
+  become: true
+
+  vars:
+    repo_url: "https://github.com/makerkit/next-supabase-saas-kit-turbo.git"
+    dest_dir: "/var/www/next-supabase-saas-kit-turbo"
+    supabase_url: "https://stnkndksrlyqwvvytlop.supabase.co"
+    supabase_anon_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0bmtuZGtzcmx5cXd2dnl0bG9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQzNTg5NTksImV4cCI6MjA0OTkzNDk1OX0.1SeEIanSFOy6-HTkLdgE5-I0jlAbUfLBKbqmewwWev4"
+    supabase_service_key: ""
+
+  tasks:
+    - name: Update apt and install required packages
+      apt:
+        name:
+          - git
+          - curl
+          - nodejs
+          - npm
+        update_cache: yes
+
+    - name: Clone the latest Makerkit Turbo repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ dest_dir }}"
+        version: main
+        force: yes
+
+    - name: Generate the .env.local file with Supabase credentials
+      template:
+        src: templates/env.local.j2
+        dest: "{{ dest_dir }}/.env.local"
+
+    - name: Install Node.js dependencies
+      command: npm install
+      args:
+        chdir: "{{ dest_dir }}"
+
+    - name: Build the application
+      command: npm run build
+      args:
+        chdir: "{{ dest_dir }}"
+
+    - name: Start the application
+      shell: |
+        nohup npm run start > /var/www/next-supabase-saas-kit-turbo/app.log 2>&1 &
+      args:
+        chdir: "{{ dest_dir }}"
+      async: 45
+      poll: 0
+
+    - name: Check if the application is running
+      uri:
+        url: "http://{{ ansible_host }}:3000"
+        status_code: 200
+      register: app_status
+      ignore_errors: yes
+
+    - name: Report the application status
+      debug:
+        msg: "Application successfully deployed and is running!" if app_status.status == 200 else "Application failed to start."
